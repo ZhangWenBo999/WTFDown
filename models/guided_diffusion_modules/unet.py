@@ -12,6 +12,29 @@ from .nn import (
     count_flops_attn,
     gamma_embedding
 )
+from .WTFDown import *
+
+# from .LDCONV2D2 import *
+
+# from .MLLA1 import *
+
+
+# from .cbam_eca import *
+
+# from nn import (
+#     checkpoint,
+#     zero_module,
+#     normalization,
+#     count_flops_attn,
+#     gamma_embedding
+# )
+# from WTFDown import *
+
+# from cbam_eca import *
+
+# from LDCONV2D2 import *
+
+# from MLLA1 import *
 
 class SiLU(nn.Module):
     def forward(self, x):
@@ -139,8 +162,11 @@ class ResBlock(EmbedBlock):
             self.h_upd = Upsample(channels, False)
             self.x_upd = Upsample(channels, False)
         elif down:
-            self.h_upd = Downsample(channels, False)
-            self.x_upd = Downsample(channels, False)
+            # self.h_upd = Downsample(channels, False)
+            # self.x_upd = Downsample(channels, False)
+
+            self.h_upd = WTFDown(channels,channels)
+            self.x_upd = WTFDown(channels,channels)
         else:
             self.h_upd = self.x_upd = nn.Identity()
 
@@ -437,9 +463,10 @@ class UNet(nn.Module):
                             down=True,
                         )
                         if resblock_updown
-                        else Downsample(
-                            ch, conv_resample, out_channel=out_ch
-                        )
+                        # else Downsample(
+                        #     ch, conv_resample, out_channel=out_ch
+                        # )
+                        else WTFDown(ch, out_ch)
                     )
                 )
                 ch = out_ch
@@ -558,3 +585,4 @@ if __name__ == '__main__':
     x = torch.randn((b, c, h, w))
     emb = torch.ones((b, ))
     out = model(x, emb)
+    print(out.shape)
